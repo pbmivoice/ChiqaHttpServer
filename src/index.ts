@@ -39,15 +39,15 @@ const responses: Record<string, (message: Message) => void> = {};
 
 const onReady = (ctx: BrokerClientContext) => {
   const server = createServer(async (req, res) => {
-    const transactionId = uuidv7();
-    const responseTopic = { to, transactionId, kind: 'http-response' };
+    const transaction = uuidv7();
+    const responseTopic = { to, transaction, kind: 'http-response' };
 
     const timeout = setTimeout(() => {
-      delete responses[transactionId];
+      delete responses[transaction];
       res.writeHead(504);
     }, Number(RESPONSE_TIMEOUT));
 
-    responses[transactionId] = (message: Message) => {
+    responses[transaction] = (message: Message) => {
       clearTimeout(timeout);
       const { status, headers, body } = message.payload as ResponsePayload;
       if (status && !headers) {
@@ -65,7 +65,7 @@ const onReady = (ctx: BrokerClientContext) => {
     const body = await getBody(req);
 
     ctx.send({
-      topic: { from, transactionId, kind: 'http-request' },
+      topic: { from, transaction, kind: 'http-request' },
       payload: {
         method: req.method,
         url: req.url,
@@ -82,10 +82,10 @@ const onReady = (ctx: BrokerClientContext) => {
 };
 
 const onMessage = async (message: Message) => {
-  const { transactionId, kind } = message.topic;
-  if (!transactionId || kind !== 'http-response') return;
-  responses[transactionId]?.(message);
-  delete responses[transactionId];
+  const { transaction, kind } = message.topic;
+  if (!transaction || kind !== 'http-response') return;
+  responses[transaction]?.(message);
+  delete responses[transaction];
 };
 
 BrokerClient(
