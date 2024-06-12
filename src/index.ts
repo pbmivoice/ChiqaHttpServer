@@ -45,6 +45,7 @@ const onReady = (ctx: BrokerClientContext) => {
     const timeout = setTimeout(() => {
       delete responses[transaction];
       res.writeHead(504);
+      res.end();
     }, Number(RESPONSE_TIMEOUT));
 
     responses[transaction] = (message: Message) => {

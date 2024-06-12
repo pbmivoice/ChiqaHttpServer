@@ -9,7 +9,7 @@
   "author": "Patrick Bowen",
   "license": "MIT",
   "dependencies": {
-    "chiqa": "file:../chiqa",
+    "chiqa": "file:../Chiqa",
     "dotenv": "^16.4.5"
   },
   "devDependencies": {
